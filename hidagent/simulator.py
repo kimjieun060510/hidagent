@@ -301,6 +301,13 @@ class SimulatorBackend:
         screen. We compute the screen region by fitting the device's aspect
         ratio into the window, centered with equal margins.
         """
+        region_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sim_region.json")
+        if os.path.exists(region_file):
+            with open(region_file) as f:
+                self._screen_region = tuple(json.load(f)["region"])
+            self._device_size = self.screenshot().size
+            print(f"  Using saved screen region: {self._screen_region}")
+            return
         bounds = self._get_window_bounds()
         if not bounds:
             return
@@ -356,13 +363,13 @@ class SimulatorBackend:
             owner = window.get("kCGWindowOwnerName", "")
             name = window.get("kCGWindowName", "")
             # Look for the main Simulator device window (not menus/panels)
-            if owner == "Simulator" and name and "Simulator" not in name:
+            if owner in ("Simulator", "Device Hub") and name and "Simulator" not in name:
                 return dict(window.get("kCGWindowBounds", {}))
 
         # Fallback: any Simulator window
         for window in windows:
             owner = window.get("kCGWindowOwnerName", "")
-            if owner == "Simulator" and window.get("kCGWindowBounds"):
+            if owner in ("Simulator", "Device Hub") and window.get("kCGWindowBounds"):
                 bounds = dict(window.get("kCGWindowBounds", {}))
                 if bounds.get("Width", 0) > 100 and bounds.get("Height", 0) > 100:
                     return bounds

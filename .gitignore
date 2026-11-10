@@ -19,3 +19,4 @@ hidagent/bridge_state.json
 examples/dataset/
 examples/imgs/
 snapshot.jpg
+hidagent/sim_region.json
